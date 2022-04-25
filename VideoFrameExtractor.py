@@ -13,7 +13,7 @@ from PIL import Image
 opj = lambda x, y: os.path.join(x, y)
 
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+device = "cuda:3" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("/common/home/dm1487/loaded_models/clip/ViT-B-32.pt", device=device)
 
 os.chdir('/common/home/dm1487/Spring22/dropdtw')
@@ -70,7 +70,18 @@ def extract_and_save(full_path):
 
 if __name__ == '__main__':
     all_files = glob.glob('/common/users/dm1487/raw_videos/testing/*/*.mp4')
+
+    completed = []
+    if os.path.exists('done_test.txt'):
+        with open('done_test.txt', 'r') as f:
+            completed = f.readlines()
+
+    completed = [i.strip() for i in completed]
+
     for i in tqdm(all_files):
+        if i in completed:
+            print('skipping', i)
+            continue
         extract_and_save(i)
         with open('done_test.txt', 'a') as f:
             f.write(i + '\n')

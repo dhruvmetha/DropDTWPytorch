@@ -1,6 +1,6 @@
 from sklearn.utils import shuffle
-from transformers import AutoTokenizer, AutoModel
-from datasets import Dataset
+from transformers import AutoTokenizer, AutoModel ##
+from datasets import Dataset ##
 from pathlib import Path
 from tqdm import tqdm 
 
@@ -26,23 +26,29 @@ class TextDataset(torch.utils.data.Dataset):
 
 def main():
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH) ##
     model = AutoModel.from_pretrained(MODEL_PATH, output_hidden_states=True)
 
-    def tokenize(batch):
-        return tokenizer(batch['sentence'], padding=True)
+    def tokenize(batch): ##
+        return tokenizer(batch['sentence'], padding=True) ##
 
     data_path = Path('data')
    
     if not os.path.exists(data_path/'tokenized_text.pkl'):
-        df = pd.read_csv(data_path/'youcook_text.csv')
-        dataset = Dataset.from_pandas(df)
-        enc_dataset = dataset.map(tokenize, batched=True, batch_size=None)
+        df = pd.read_csv(data_path/'youcook_text.csv') ##
+        dataset = Dataset.from_pandas(df) ##
+        enc_dataset = dataset.map(tokenize, batched=True, batch_size=None) ##
         with open(data_path/'tokenized_text.pkl', 'wb') as f:
             pickle.dump(enc_dataset, f)
     else:
         with open(data_path/'tokenized_text.pkl', 'rb') as f:
             enc_dataset = pickle.load(f)
+
+    
+    '''
+    enc_dataset.set_format('pandas')
+    df = enc_dataset[:]
+    '''
     
     batch_size = 512
     dataset_torch = TextDataset(enc_dataset)
