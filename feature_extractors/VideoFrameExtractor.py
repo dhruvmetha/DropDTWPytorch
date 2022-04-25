@@ -30,7 +30,6 @@ def extract_and_save(full_path):
     features = torch.tensor([])
     extracted_features = torch.tensor([])
     while video.isOpened():
-        # print('here')
         if features.shape[0] == batch_size:
             with torch.no_grad():
                 image_features = model.encode_image(features)
@@ -40,20 +39,16 @@ def extract_and_save(full_path):
                     extracted_features = torch.vstack([extracted_features, image_features.cpu()])
                     print(extracted_features.size())
             features = torch.tensor([])
-
         ret, frame = video.read()
         if ret == True:
             if start % get_frame_at == 0:
                 image = preprocess(Image.fromarray(frame)).unsqueeze(0).to(device)
-                # with torch.no_grad():
-                #     image_features = model.encode_image(image)
                 if features.shape[0] == 0:
                     features = image
                 else:
                     features = torch.vstack([features, image])
             start += 1
         else:
-            # print('here')
             if features.shape[0] > 0:
                 with torch.no_grad():
                     image_features = model.encode_image(features)
