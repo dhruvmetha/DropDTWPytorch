@@ -13,21 +13,21 @@ from tqdm import tqdm
 from PIL import Image
 from s3dg import S3D
 
-transform = torchvision.transforms.Compose([
+class VideoLoader(torch.utils.data.Dataset):
+    def __init__(self, frames,dim):
+        self.frames = frames
+        self.transform = torchvision.transforms.Compose([
             torchvision.transforms.ToPILImage(),
-            torchvision.transforms.CenterCrop(720),
+            torchvision.transforms.CenterCrop(dim),
             torchvision.transforms.Resize((224,224)),
             torchvision.transforms.ToTensor(),
         ])
-class VideoLoader(torch.utils.data.Dataset):
-    def __init__(self, frames):
-        self.frames = frames
-    
+
     def __len__(self):
         return len(self.frames)
-    
-    def __getitem__(self, idx):        
-        return transform(self.frames[idx])
+
+    def __getitem__(self, idx):
+        return self.transform(self.frames[idx])
         
 opj = lambda x, y: os.path.join(x, y)
 
@@ -50,7 +50,8 @@ def extract_and_save(full_path):
             frames.append(frame)
     finally:
         video.release()
-    dataset = VideoLoader(frames)
+    min_dim = min(frames[0].shape[0:2])
+    dataset = VideoLoader(frames,min_dim)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=False)
     num_batch = len(data_loader)
     emb = torch.tensor([]).to(device)
