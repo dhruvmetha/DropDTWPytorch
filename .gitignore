@@ -2,3 +2,11 @@ data/
 raw_frames/
 raw_text/
 *.txt
+*.csv
+.ipynb_checkpoints/
+ckpts_*
+__pycache__/
+video_extract/
+wandb/
+*.pkl
+s3d_our*
